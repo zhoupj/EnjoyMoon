@@ -1,0 +1,243 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.tog.together</groupId>
+	<artifactId>together-parent</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+
+	<name>system-parent</name>
+	<url>http://maven.apache.org</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<tomcat.dir>C:\Program Files\Apache Software Foundation\Tomcat 7.0</tomcat.dir>
+	</properties>
+
+	<modules>
+		<module>together-core-service</module>
+		<module>together-common-dal</module>
+		<module>together-web-home</module>
+	</modules>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- project -->
+			<dependency>
+				<groupId>com.tog.together</groupId>
+				<artifactId>together-core-service</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.tog.together</groupId>
+				<artifactId>together-common-dal</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.tog.together</groupId>
+				<artifactId>together-web-home</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+
+			<!-- mina -->
+			<dependency>
+				<groupId>org.apache.mina</groupId>
+				<artifactId>mina-core</artifactId>
+				<version>2.0.9</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.5</version>
+			</dependency>
+
+			<!-- -test -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>3.8.1</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<finalName>together</finalName>
+		<pluginManagement>
+			<plugins>
+				<!--<plugin> <groupId>org.apache.tomcat.maven</groupId> <artifactId>tomcat7-maven-plugin</artifactId> <version>2.1</version> 
+					<configuration> <server>tomcat</server> <url>http://localhost:8080/manager/text</url> <path>/together</path> <warFile>${project.build.directory}/testdemo.war</warFile> 
+					</configuration> </plugin> -->
+				<plugin>
+					<groupId>org.mortbay.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>8.0.3.v20111011</version>
+					<configuration>
+						<scanIntervalSecond>10</scanIntervalSecond>
+						<webApp>
+							<contextPath>/test</contextPath>
+						</webApp>
+						<connectors>
+							<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
+								<port>8787</port>
+								<maxIdleTime>60000</maxIdleTime>
+							</connector>
+						</connectors>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.cargo</groupId>
+					<artifactId>cargo-maven2-plugin</artifactId>
+					<version>1.4.15</version>
+					<configuration>
+						<container>
+							<containerId>tomcat7x</containerId>
+							<home>${tomcat.dir}</home>
+						</container>
+						<configuration>
+							<type>existing</type><!--standalone -->
+							<home>${project.build.directory}/tomcat7x</home>
+							<properties>
+								<cargo.servlet.port>8081</cargo.servlet.port>
+							</properties>
+						</configuration>
+					</configuration>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+		<!-- some important and global jar  -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0.2</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.0</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>dev</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>dev</value>
+				</property>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<!-- repositories -->
+			<repositories>
+				<repository>
+					<id>central</id>
+					<url>http://mvn.dev.alipay.net:8080/artifactory/repo</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>snapshots</id>
+					<url>http://mvn.dev.alipay.net:8080/artifactory/repo</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>central</id>
+					<url>http://mvn.dev.alipay.net:8080/artifactory/repo</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+		<profile>
+			<id>test</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>test</value>
+				</property>
+			</activation>
+			<repositories>
+				<repository>
+					<id>central</id>
+					<url>http://mvn.test.alipay.net:8080/artifactory/repo</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>snapshots</id>
+					<url>http://mvn.test.alipay.net:8080/artifactory/repo</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>central</id>
+					<url>http://mvn.test.alipay.net:8080/artifactory/repo</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>prod</value>
+				</property>
+			</activation>
+			<repositories>
+				<repository>
+					<id>central</id>
+					<url>http://mvn.test.alipay.net:8080/artifactory/repo</url>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+				<repository>
+					<id>snapshots</id>
+					<url>http://mvn.test.alipay.net:8080/artifactory/repo</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+				</repository>
+			</repositories>
+			<pluginRepositories>
+				<pluginRepository>
+					<id>central</id>
+					<url>http://mvn.test.alipay.net:8080/artifactory/repo</url>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</pluginRepository>
+			</pluginRepositories>
+		</profile>
+	</profiles>
+</project>
